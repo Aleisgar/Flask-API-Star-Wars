@@ -30,6 +30,9 @@ def handle_invalid_usage(error):
 def sitemap():
     return generate_sitemap(app)
 
+
+# ---  GET METHODS  ---
+
 @app.route('/user', methods=['GET'])
 def get_users():
     users = User.query.all()
@@ -39,9 +42,9 @@ def get_users():
     }
     return jsonify(response_body), 200
 
-@app.route('/user/favorites', methods=['GET'])
-def get_favorites():
-    favorites = Favorites.query.all()
+@app.route('/user/<int:user_id>/favorites', methods=['GET'])
+def get_favorites(user_id):
+    favorites = Favorites.query.filter_by(user_id ="user_id")
     favoritesList = list(map(lambda obj : obj.serialize(),favorites))
     response_body = {
         "msg": ("These are your favorite items:",favoritesList)
@@ -113,17 +116,23 @@ def show_planet(planet_id):
     print(planetId)
     return jsonify(planetId.serialize()), 200    
 
-@app.route('/ship', methods=['GET'])
-def get_ship():
-    ships = Ships.query.all()
-    ships_list = list(map(lambda obj : obj.serialize(),ships))
-    # Como character no es un objeto no se puede serializar, 
-    # para eso es necesario mapearlo y extraer cada objeto del list para serializarlo
-    print(ships_list)
-    response_body = {
-        "msg": ships_list
-    }
-    return jsonify(response_body), 200         
+# @app.route('/favorites/<int:favorites_id>', methods=['GET'])
+# def show_favorites(favorites_id):
+#     favoriteId = Planet.query.get(planet_id)
+#     print(planetId)
+#     return jsonify(planetId.serialize()), 200 
+
+# @app.route('/ship', methods=['GET'])
+# def get_ship():
+#     ships = Ships.query.all()
+#     ships_list = list(map(lambda obj : obj.serialize(),ships))
+#     # Como character no es un objeto no se puede serializar, 
+#     # para eso es necesario mapearlo y extraer cada objeto del list para serializarlo
+#     print(ships_list)
+#     response_body = {
+#         "msg": ships_list
+#     }
+#     return jsonify(response_body), 200         
         
 # @app.route('/user/<int:user_id>', methods=['PUT','GET'])
 # def get_single_person(user_id):

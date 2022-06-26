@@ -11,7 +11,7 @@ class User(db.Model):
     username = db.Column(db.String(20), unique=True, nullable=False)
     email = db.Column(db.String(30), unique=True, nullable=False)
     password= db.Column(db.String(30), unique=False, nullable=False)
-    id_user = db.relationship('Favorites', backref='user', lazy=True)
+    favorites_id = db.relationship('Favorites', backref='user', lazy=True)
 
     def __repr__(self):
         return '<User %r>' % self.id
@@ -21,6 +21,7 @@ class User(db.Model):
             "id": self.id,
             "username": self.username,
             "email": self.email,
+            "favorites_id":self.favorites_id
         }
 
 class Favorites(db.Model):
