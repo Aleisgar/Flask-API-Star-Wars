@@ -21,15 +21,15 @@ class User(db.Model):
             "id": self.id,
             "username": self.username,
             "email": self.email,
-            "favorites_id":self.favorites_id
+            "favorites_id" : self.favorites_id
         }
 
 class Favorites(db.Model):
     __tablename__ = 'favorites'
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'),nullable=False)
-    character_name = db.Column(db.String(50), db.ForeignKey('character.name'),nullable=True)
-    planet_name = db.Column(db.String(50), db.ForeignKey('planet.name'),nullable=True) 
+    name = db.Column(db.String(50), nullable=True)
+    # planet_name = db.Column(db.String(50), db.ForeignKey('planet.name'),nullable=True) 
     # ship_id = db.Column(db.Integer, db.ForeignKey('ships.id'),nullable=True)
 
     def __repr__(self):
@@ -38,11 +38,8 @@ class Favorites(db.Model):
     def serialize(self):
         return {
             "id": self.id,
-            "userId": self.user_id,
-            "character": self.character_name,
-            "planet": self.planet_name, 
-            # Me interesaría que serializara el nombre en vez del id??
-            # "starship": self.ship_id,  
+            "user_id": self.user_id,
+            "name": self.name
         }
          
 class Character(db.Model):
@@ -55,7 +52,7 @@ class Character(db.Model):
     gender = db.Column(db.String(10), unique=False, nullable=False)
     planet_id = db.Column(db.Integer, db.ForeignKey('planet.id'), nullable=True)
     # ships_id = db.Column(db.Integer, db.ForeignKey('ships.id'),nullable=True)
-    favorite_character = db.relationship('Favorites', backref='character', lazy=True)
+    # favorite_character = db.relationship('Favorites', backref='character', lazy=True)
 
     def __repr__(self):
         return '<Character %r>' % self.name
@@ -82,7 +79,7 @@ class Planet(db.Model):
     climate = db.Column(db.String(20), unique=False, nullable=True)
     terrain = db.Column(db.String(20), unique=False, nullable=True)
     characters = db.relationship('Character', backref='planet', lazy=True)
-    favorite_planet = db.relationship('Favorites', backref='planet', lazy=True)
+    # favorite_planet = db.relationship('Favorites', backref='planet', lazy=True)
 
     def __repr__(self):
         return '<Planet %r>' % self.name

@@ -31,7 +31,7 @@ def sitemap():
     return generate_sitemap(app)
 
 
-# ---  GET METHODS  ---
+# ---  ROUTE USER  ---
 
 @app.route('/user', methods=['GET'])
 def get_users():
@@ -42,15 +42,11 @@ def get_users():
     }
     return jsonify(response_body), 200
 
-@app.route('/user/<int:user_id>/favorites', methods=['GET'])
-def get_favorites(user_id):
-    favorites = Favorites.query.filter_by(user_id ="user_id")
-    favoritesList = list(map(lambda obj : obj.serialize(),favorites))
-    response_body = {
-        "msg": ("These are your favorite items:",favoritesList)
-    }
-    return jsonify(response_body),200
-    
+@app.route('/user/<int:user_id>', methods=['GET'])
+def show_users(user_id):
+    userId = User.query.get(user_id)
+    print(userId)
+    return jsonify(userId.serialize()), 200
 
 @app.route('/user', methods=['POST'])   
 def create_new_user():
@@ -63,25 +59,47 @@ def create_new_user():
     }
     return jsonify(response_body,200)
 
-# @app.route('/favorites/planet/<int:planet_id>', methods=['POST'])   
-# def new_favorite_planet(planet_id):
-#     body=json.loads(request.data)
-#     favorite_planet = Favorites(name=body["planet_id"])   
-#     db.session.add(favorite_planet)
-#     db.session.commit()
-#     response_body={
-#         "msg": ("favorite added",favorite_planet)
-#     }
-#     return jsonify(response_body,200)
+# ---  ROUTE FAVORITES  ---    
 
-@app.route('/user/<int:user_id>', methods=['GET'])
-def show_users(user_id):
-    userId = User.query.get(user_id)
-    print(userId)
-    return jsonify(userId.serialize()), 200
+@app.route('/user/<int:user_id>/favorites', methods=['GET'])
+def get_favorites(user_id):
+    favorites = Favorites.query.filter_by(user_id =user_id)
+    favoritesList = list(map(lambda obj : obj.serialize(),favorites))
+    response_body = {
+        "msg": ("These are your favorite items:",favoritesList)
+    }
+    return jsonify(response_body),200
+    
+
+@app.route('/user/<int:user_id>', methods=['POST'])   
+# Porque puedo poner una ruta de usuario diferente al usuario del objeto
+def new_favorite(user_id):
+    body=json.loads(request.data)
+    print(body)
+    favorite_item = Favorites(name=body["name"], user_id =body ["user_id"])   
+    db.session.add(favorite_item)
+    db.session.commit()
+    response_body={
+        "msg": ("favorite added")
+    }
+    return jsonify(response_body,200)
+
+
+@app.route('/user/<int:user_id>/favorites/<int:favorites_id>', methods=['DELETE'])
+def delete_favorites(user_id,favorites_id):
+    favorite = Favorites.query.filter_by(id = favorites_id).all()
+    print(favorite)
+    db.session.delete(favorite[0])
+    db.session.commit()
+    response_body = {
+        "msg": "Your favorite item has been deleted!"
+    }
+    return jsonify(response_body),200    
+
+# ---  ROUTE CHARACTER AND PLANET  ---    
 
 @app.route('/character', methods=['GET'])
-def get_character():
+def get_character_list():
     characters = Character.query.all()
     character_list = list(map(lambda obj : obj.serialize(),characters))
     # Como character no es un objeto no se puede serializar, 
@@ -96,7 +114,8 @@ def get_character():
 def show_character(character_id):
     characterId = Character.query.get(character_id)
     print(characterId)
-    return jsonify(characterId.serialize()), 200    
+    return jsonify(characterId.serialize()), 200   
+
 
 @app.route('/planet', methods=['GET'])
 def get_planet():
@@ -116,38 +135,7 @@ def show_planet(planet_id):
     print(planetId)
     return jsonify(planetId.serialize()), 200    
 
-# @app.route('/favorites/<int:favorites_id>', methods=['GET'])
-# def show_favorites(favorites_id):
-#     favoriteId = Planet.query.get(planet_id)
-#     print(planetId)
-#     return jsonify(planetId.serialize()), 200 
-
-# @app.route('/ship', methods=['GET'])
-# def get_ship():
-#     ships = Ships.query.all()
-#     ships_list = list(map(lambda obj : obj.serialize(),ships))
-#     # Como character no es un objeto no se puede serializar, 
-#     # para eso es necesario mapearlo y extraer cada objeto del list para serializarlo
-#     print(ships_list)
-#     response_body = {
-#         "msg": ships_list
-#     }
-#     return jsonify(response_body), 200         
-        
-# @app.route('/user/<int:user_id>', methods=['PUT','GET'])
-# def get_single_person(user_id):
-#     """
-#     Single person
-#     """
-#     body = request.get_json() #{ 'username': 'new_username'}
-#     if request.method == 'PUT':
-#         user1 = User.query.get(user_id)
-#         user1.user_name = body.username
-#         db.session.commit()
-#         return jsonify(user1.serialize()), 200
-#     if request.method == 'GET':
-#         user1 = User.query.get(user_id)
-#         return jsonify(user1.serialize()), 200    
+ 
 
 # this only runs if `$ python src/main.py` is executed
 if __name__ == '__main__':
